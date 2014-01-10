@@ -1,0 +1,138 @@
+<html>
+<head>
+<title>Summary of data files (<%=paste(existingtables,collapse=", ")%>) and  query file (<%=useexceptions%>)</title>
+</head>
+<body>
+<script language="javascript" type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
+  <script language="javascript" type="text/javascript" src="http://datatables.net/download/build/jquery.dataTables.nightly.js"></script>
+  <script type='text/javascript'>
+    $(document).ready(function(){      
+      $('.filtering_enabled').dataTable();
+    });  
+  </script>
+<style type="text/css">
+  @import "../code/css/demo_table.css";
+  @import "../code/css/demo_page.css";
+</style>
+
+
+<%
+# Run or source some R code here
+writeHTMLtable <- function(table,header=FALSE,filtering_enabled=FALSE,total_row=FALSE){
+  if(filtering_enabled){
+    if(total_row){
+      totalRow <- table[nrow(table),]
+      # redefine table excluding total row
+      table <- table[1:nrow(table)-1,]
+      tableFooter <- paste("<tfoot><tr><th scope='row'>Total</th><td>&nbsp;",c(apply(totalRow[,2:ncol(totalRow)],1,paste,collapse="</td><td>&nbsp;")),"</td></tr></tfoot>",sep="")
+      start <- paste("<br><table border='1' class='filtering_enabled display'>",tableFooter,sep="")
+    }else{
+      start <- "<br><table border='1' class='filtering_enabled display'>"
+    }    
+  }else{
+    start <- "<br><table border='1'>"
+  }
+  
+  end <- "</tr></tbody></table>"
+  if(header){
+    head <- paste(names(table),collapse="</th><th>")
+    table <- paste(start,"<thead><tr><th>",head,"</th></tr></thead><tbody><tr><td>",paste(c(apply(table,1,paste,collapse="</td><td>&nbsp;")),collapse="</tr><tr><td>"),end,sep="")
+  }
+  if(!header) table <- paste(start,"<tbody><tr><td>",paste(apply(table,1,paste,collapse="</td><td>&nbsp;"),collapse="</tr><tr><td>"),end,sep="")
+  return(table)
+}
+
+## CREATE A BARPLOT GRAPHIC
+dob_year <- as.numeric(substr(basic$birth_d,1,4))
+## for simplicity, remove birthdates that have any flag
+plotindex1 <- TRUE
+if(exists("birth_d_a",basic)) plotindex1 <- is.na(basic$birth_d_a)|basic$birth_d_a %in% c("D","M","Y")
+plotdob <- data.frame(table(dob_year[plotindex1],basic$male_y[plotindex1]))
+
+
+png("output/year_gender_barchart.png",res=100,width=640,height=480, bg="transparent") 
+par(mgp=c(2,1,0),mar=c(3,3,1,1))
+plotdob[,1] <- as.numeric(as.character(plotdob[,1]))
+plot(plotdob[,1],plotdob[,3],col=0,xlab="Year of birth",ylab="Number of patients",xlim=quantile(plotdob[,1],p=c(0.05,0.95)))
+rect(xleft=plotdob[plotdob$Var2==1,1]-.35,ybottom=0,xright=plotdob[plotdob$Var2==1,1],ytop=plotdob[plotdob$Var2==1,3],border=TRUE,col="blue",lwd=0.5)
+rect(xleft=plotdob[plotdob$Var2==0,1],ybottom=0,xright=plotdob[plotdob$Var2==0,1]+.35,ytop=plotdob[plotdob$Var2==0,3],border=TRUE,col="red",lwd=0.5)
+legend("topleft", c("Male", "Female"), pch=15, 
+       col=c("blue","red"), border="black",
+       bty="n")
+dev.off()
+
+
+## THIS LOOPS OVER SITE TO CREATE SUMMARY TABLES
+print_records_by_site <- NULL
+for(i in sort(unique(basic$site))){
+  crecordcounts <- t(sapply(readtables,getrecordcounts,subset=unique(basic$patient[basic$site==i])))
+  crecordcounts <- data.frame(expecteddestables[match(existingtables,expectedtables)],crecordcounts[,2:3])
+  names(crecordcounts) <- c("tbl","records","patients")
+  print_records_by_site <- c(print_records_by_site,paste("<br><hr /><br>The following table summarizes records and unique patients for site  <strong>",i,"</strong>: ",writeHTMLtable(crecordcounts,header=TRUE),sep=""))
+}
+%>
+<h1>Data Summary</h1>
+<p>This report summarizes <%=sum(recordcounts$records)%> records found among <%=recordcounts$patients[recordcounts$tbl=="tblBAS"]%> patients in a database formulated using the IeDEA data exchange standard. </p>
+<img src="year_gender_barchart.png" />
+<br><hr /><br>
+The following table summarizes the number of records and unique patients for the <strong> entire database</strong>:
+<%=writeHTMLtable(recordcounts,header=TRUE)%>
+<%=print_records_by_site%>
+
+
+<%
+# Run or source some R code here
+overalltable <- geterrtable(unique(allquery$err),total=TRUE)
+
+png("output/histbox.png",res=100,width=480,height=480, bg="transparent") 
+# Add boxplots to a scatterplot
+par(mar=c(3,3,1,1),mgp=c(2,1,0))
+par(fig=c(0,1,0,0.8))
+set.seed(1)
+plotcounts <- data.frame(table(allquery$PID))
+hist(plotcounts$Freq, nclass=20, xlab="Number of exceptions",main="")
+maxcount <- max(hist(plotcounts$Freq, nclass=20, plot=F)$counts)
+z <- density(plotcounts$Freq)
+#Scale density estimate to coincide with histogram
+#lines(z$x, maxcount*z$y/max(z$y))
+par(fig=c(0,1,0.6,1), new=TRUE)
+boxplot(plotcounts$Freq,ylab="",horizontal=TRUE,axes=FALSE)
+stripchart(plotcounts$Freq,vertical=FALSE,method="jitter",add=TRUE,pch=19,cex=0.05,col=3,jitter=0.025)
+dev.off()
+
+png(filename='output/counts_by_enrol_d.png',res=100,width=480,height=480, bg="transparent")
+par(mgp=c(2,1,0),mar=c(3,3,1,1))
+plotcounts <- data.frame(table(allquery$PID))
+plotcounts <- merge(plotcounts,basic,by.x="Var1",by.y="patient",all.x=TRUE)
+plotindex2 <- !is.na(plotcounts$enrol_d)
+if(exists("enrol_d_a",basic)){
+   plotindex2 <- plotindex2 & is.na(plotcounts$enrol_d_a)|plotcounts$enrol_d_a %in% c("D","M","Y")
+}
+plot(plotcounts$enrol_d[plotindex2],plotcounts$Freq[plotindex2],
+     type="p",pch=16,cex=0.4,xlab="Year of enrollment",ylab="Number of exceptions",main="")
+abline(h=mean(plotcounts$Freq[plotindex2]),lty=2,lwd=1.5,col=4)
+abline(h=median(plotcounts$Freq[plotindex2]),lty=1,lwd=1.5,col=3)
+legend("topleft",c("Mean","Median"),col=4:3,lty=2:1,lwd=1.5,bty="n")
+dev.off()
+
+## THIS LOOPS OVER SITE TO CREATE SUMMARY TABLES
+print_by_site <- NULL
+for(i in sort(unique(allquery$site))){
+  print_by_site <- c(print_by_site,paste("<br><hr /><br>The following table summarizes exceptions encountered for site <strong>",i,"</strong>: ",writeHTMLtable(geterrtable(unique(allquery$err[allquery$Error != "Table Structure"]),total=TRUE,subset=(!is.na(allquery$site) & allquery$site==i)),header=TRUE,filtering_enabled=TRUE,total_row=TRUE),sep=""))
+}
+
+excsum <- nrow(allquery)
+patsum <- length(unique(allquery$PID))
+%>
+<h1>Query Summary</h1>
+<p>This report summarizes <%=excsum%> exceptions found among <%=patsum%> patients in a database formulated using the IeDEA data exchange standard. </p>
+<h2>Patient-level Counts</h2>
+<img src="histbox.png" />
+<img src="counts_by_enrol_d.png" />
+<br><hr /><br>
+The following table summarizes exceptions encountered for the <strong> entire database</strong>:
+<%=writeHTMLtable(overalltable,header=TRUE,filtering_enabled=TRUE,total_row=TRUE)%>
+<%=print_by_site%>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+code,label
+ABC,Abacavir
+APV,Amprenavir 
+ATV,Atazanavir 
+CAP,Capravirine
+DRV,Darunavir 
+DLV,Delavirdine
+DDI,Didanosine
+DDI,Didanosine EC
+EFV,Efavirenz 
+EVG,Elvitegravir
+ELV,Elvitegravir
+FTC,Emtricitabinea 
+"T20, ENF",Enfuvirtide 
+ETR,Etravirine
+FPV,Fosamprenavir
+IDV,Indinavir 
+3TC,Lamivudine
+"LPV,RTV",Lopinavir/Ritonavir
+MVC,Maraviroc
+MRV,Maraviroc
+NFV,Nelfinavir 
+NVP,Nevirapine
+RAL,Raltegravir
+RPV,Rilpivirine
+RTV,Ritonavir 
+SQV,Saquinavir
+D4T,Stavudine
+TDF,Tenofovir 
+TPV,Tipranavir 
+VIC,Vicriviroc
+DDC,Zalcitabine
+AZT,Zidovudine
+TRV,Truvada

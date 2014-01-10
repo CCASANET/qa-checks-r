@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>Patient-level summary of query file (<%=useexceptions%>)</title>
+</head>
+<body>
+<script language="javascript" type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
+  <script language="javascript" type="text/javascript" src="http://datatables.net/download/build/jquery.dataTables.nightly.js"></script>
+  <script type='text/javascript'>
+    $(document).ready(function(){      
+      $('.filtering_enabled').dataTable();
+    });  
+  </script>
+<style type="text/css">
+  @import "../code/css/demo_table.css";
+  @import "../code/css/demo_page.css";
+</style>
+<%
+# Run or source some R code here
+getptlevcounts <- function(subset=TRUE){
+  ptlev1 <- as.data.frame.matrix(table(allquery$PID[subset],allquery$tbl[subset]))
+  ptlev1$Total <- apply(ptlev1,1,sum)
+  ptlev1 <- data.frame(PID=row.names(ptlev1),ptlev1)
+  ptlev1 <- ptlev1[order(ptlev1$Total,decreasing=TRUE),]
+  return(ptlev1)
+}
+
+## THIS LOOPS OVER SITE TO CREATE SUMMARY TABLES
+print_by_site <- printtext_by_site <- NULL
+for(i in sort(unique(allquery$site))){
+  print_by_site <- c(print_by_site,paste("<br><hr /><br>The following table summarizes patient-level counts for exceptions among patients from site <strong>",i,"</strong>: ",
+                     writeHTMLtable(getptlevcounts(subset=(!is.na(allquery$site) & allquery$site==i)),header=TRUE,filtering_enabled=TRUE,total_row=FALSE),sep=""))
+  printtext_by_site <- c(printtext_by_site,paste0("<p>There were ",sum(allquery$site==i,na.rm=TRUE)," exceptions found among ",length(unique(allquery$PID[allquery$site==i]))," patients enrolled at ",i,". </p>"))
+}
+
+excsum <- nrow(allquery)
+patsum <- length(unique(allquery$PID))
+%>
+<h1>Query Summary</h1>
+<p>This report summarizes <%=excsum%> exceptions found among <%=patsum%> patients in a database formulated using the IeDEA data exchange standard. </p>
+<%=printtext_by_site%>
+<h2>Patient-level Counts</h2>
+<img src="histbox.png" />
+<img src="counts_by_enrol_d.png" />
+<br><hr /><br>
+<%=print_by_site%>
+
+</body>
+</html>
