@@ -90,7 +90,6 @@ convertdate <- function(date,table=parent.frame()){
   return(var)
 }
 
-
 ## GET QUERY COUNTS FOR ALL ERROR TYPES, THEN COMBINE INTO A TABLE
 ## WHEN SUBSET=TRUE, THIS SELECTS EVERYTHING (NO SUBSETTING)
 geterrtable <- function(vartypes,subset=TRUE,total=FALSE){

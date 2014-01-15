@@ -70,9 +70,10 @@ for(i in sort(unique(basic$site))){
   names(crecordcounts) <- c("tbl","records","patients")
   print_records_by_site <- c(print_records_by_site,paste("<br><hr /><br>The following table summarizes records and unique patients for site  <strong>",i,"</strong>: ",writeHTMLtable(crecordcounts,header=TRUE),sep=""))
 }
+if(length(sort(unique(basic$site)))<2){print_records_by_site <- ""}
 %>
 <h1>Data Summary</h1>
-<p>This report summarizes <%=sum(recordcounts$records)%> records found among <%=recordcounts$patients[recordcounts$tbl=="tblBAS"]%> patients in a database formulated using the IeDEA data exchange standard. </p>
+<p>This report summarizes <%=sum(recordcounts$records)%> records found among <%=recordcounts$patients[recordcounts$tbl=="tblBASIC"]%> patients in a database formulated using the IeDEA data exchange standard. </p>
 <img src="year_gender_barchart.png" />
 <br><hr /><br>
 The following table summarizes the number of records and unique patients for the <strong> entire database</strong>:
@@ -120,7 +121,7 @@ print_by_site <- NULL
 for(i in sort(unique(allquery$site))){
   print_by_site <- c(print_by_site,paste("<br><hr /><br>The following table summarizes exceptions encountered for site <strong>",i,"</strong>: ",writeHTMLtable(geterrtable(unique(allquery$err[allquery$Error != "Table Structure"]),total=TRUE,subset=(!is.na(allquery$site) & allquery$site==i)),header=TRUE,filtering_enabled=TRUE,total_row=TRUE),sep=""))
 }
-
+if(length(sort(unique(basic$site)))<2){print_by_site <- ""}
 excsum <- nrow(allquery)
 patsum <- length(unique(allquery$PID))
 %>

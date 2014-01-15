@@ -36,7 +36,7 @@ excsum <- nrow(allquery)
 patsum <- length(unique(allquery$PID))
 %>
 <h1>Query Summary</h1>
-<p>This report summarizes <%=excsum%> exceptions found among <%=patsum%> patients in a database formulated using the IeDEA data exchange standard. </p>
+<p>This report summarizes <%=excsum%> exceptions found among <%=patsum%> patients in a database formulated using the CCASAnet data transfer protocol. </p>
 <%=printtext_by_site%>
 <h2>Patient-level Counts</h2>
 <img src="histbox.png" />

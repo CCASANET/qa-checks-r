@@ -1,11 +1,11 @@
 #############################################################
 #
 #   Program: tblART_checks.R
-#   Project: IeDEA
+#   Project: CCASAnet
 # 
 #   PI: Firas Wehbe, PhD
 #   Biostatistician/Programmer: Meridith Blevins, MS
-#   Purpose: Read in IeDEAS standard and write  
+#   Purpose: Read in CCASAnet standard data and write  
 #            data queries
 #
 #   INPUT: "tblART.csv"
@@ -16,14 +16,14 @@
 #          then this code should run smoothly, generating
 #          a listing of data queries.
 #
-#   Created: 9 October 2013
+#   Created: January 2 2013
 #   Revisions: 
 #     
 #############################################################
 ## NAME OF TABLE FOR WRITING QUERIES
 tablename <- "tblART"
 ## READ TABLE
-## NAMES EXPECTED FROM HICDEP+/IeDEAS DES
+## NAMES EXPECTED FROM CCASAnet
 expectednames <- c("patient","art_id","art_sd","art_ed","art_rs_start","art_rs_start_oth","art_rs_stop","art_rs_stop_oth",
                    "art_do","art_fr")
 acceptablenames <- c(expectednames,"art_sd_a","art_ed_a","site")
@@ -88,21 +88,13 @@ lowerrangecheck(art_do,0,art)
 lowerrangecheck(art_fr,0,art)  
 
 ## CHECK FOR UNEXPECTED CODING
-# art_id_codebook <- read.csv("resource/art_id_codebook.csv",header=TRUE,stringsAsFactors = FALSE,na.strings="")
+art_id_codebook <- read.csv("resource/art_id_codebook.csv",header=TRUE,stringsAsFactors = FALSE,na.strings="")
 art_rs_codebook <- read.csv("resource/art_rs_codebook.csv",header=TRUE,stringsAsFactors = FALSE,na.strings="")
 badcodes(art_id,art_id_codebook$code,art)
 badcodes(art_rs_stop,art_rs_codebook$code,art)
 badcodes(art_rs_start,art_rs_codebook$code,art)
 badcodes(art_sd_a,c("<",">","D","M","Y","U"),art)
 badcodes(art_ed_a,c("<",">","D","M","Y","U"),art)
-
-# ## NEED TO PROGRAM:
-# Overlapping periods of same drug
-# Double reporting - records reported for both combination drugs and their components
-# Periods of overlap of contra-indicated drugs
-# Restart of same drug without a stop 
-
-################### QUERY CHECKING ENDS HERE ###################
 
 
 ## TRANSPOSE ART STRINGS TO BE 1 DRUG PER ROW
@@ -134,6 +126,14 @@ assign(paste("query",index,sep=""),query,envir=globalenv())
 index <<- index + 1
 
 
+
+
+# ## NEED TO PROGRAM:
+# Double reporting - records reported for both combination drugs and their components
+# Periods of overlap of contra-indicated drugs
+
+
+################### QUERY CHECKING ENDS HERE ###################
 
 
 
