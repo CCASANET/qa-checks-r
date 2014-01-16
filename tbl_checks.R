@@ -56,7 +56,7 @@ for(i in 1:length(readtables)){
      assign(readtables[i],readcsv)
    }
 }
-if(any(is.na(sort(readtables)))){
+if(length(sort(readtables))==0){
   stop("ERROR: No tables were read from /input.  Please check that files exist and match naming convention (basic.csv lab_cd4.csv, lab_rna.csv, art.csv, follow.csv, visit.csv)")
 }
 
