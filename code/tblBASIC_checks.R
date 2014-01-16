@@ -89,9 +89,6 @@ queryduplicates(patient,basic)
 
 ## CHECK FOR UNEXPECTED CODING
 badcodes(male_y,c(0,1,2,9),basic)
-mode_codes <- c('Unknown','Homosexual contact','Heterosexual contact','Injecting drug user','Other (specify in mode_oth)','Heterosexual contact and Injecting drug user',
-                'Perinatal','Homo/Bisexual and Injecting drug user','Transfusion, nonhemophilia related','Bisexual','Hemophiliac')
-badcodes(mode,mode_codes,basic)
 badcodes(recart_y,c(0,1,2,9),basic)
 badcodes(aids_y,c(0,1,2,9),basic)
 badcodes(birth_mode,c("Caesarian","Vaginal"),basic)
@@ -101,5 +98,9 @@ badcodes(hivdiagnosis_d_a,c("<",">","D","M","Y","U"),basic)
 badcodes(enrol_d_a,c("<",">","D","M","Y","U"),basic)
 badcodes(recart_d_a,c("<",">","D","M","Y","U"),basic)
 badcodes(aids_d_a,c("<",">","D","M","Y","U"),basic)
+
+## TRANSPOSE MODE STRINGS TO BE 1 TRANSMISSION PER ROW
+newbasic <- concatTranspose(mode,basic,sep="+")
+badcodes(mode,c(1,2,4,5,6,8,9,10,90,99),newbasic)
 
 ################### QUERY CHECKING ENDS HERE ###################

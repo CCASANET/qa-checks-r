@@ -11,12 +11,14 @@ EFV,Efavirenz
 EVG,Elvitegravir
 ELV,Elvitegravir
 FTC,Emtricitabinea 
-"T20, ENF",Enfuvirtide 
+T20,Enfuvirtide 
+ENF,Enfuvirtide 
 ETR,Etravirine
 FPV,Fosamprenavir
 IDV,Indinavir 
 3TC,Lamivudine
-"LPV,RTV",Lopinavir/Ritonavir
+RTV,Ritonavir
+LPV,Lopinavir
 MVC,Maraviroc
 MRV,Maraviroc
 NFV,Nelfinavir 

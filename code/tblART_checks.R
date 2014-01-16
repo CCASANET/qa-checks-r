@@ -90,7 +90,6 @@ lowerrangecheck(art_fr,0,art)
 ## CHECK FOR UNEXPECTED CODING
 art_id_codebook <- read.csv("resource/art_id_codebook.csv",header=TRUE,stringsAsFactors = FALSE,na.strings="")
 art_rs_codebook <- read.csv("resource/art_rs_codebook.csv",header=TRUE,stringsAsFactors = FALSE,na.strings="")
-badcodes(art_id,art_id_codebook$code,art)
 badcodes(art_rs_stop,art_rs_codebook$code,art)
 badcodes(art_rs_start,art_rs_codebook$code,art)
 badcodes(art_sd_a,c("<",">","D","M","Y","U"),art)
@@ -98,13 +97,9 @@ badcodes(art_ed_a,c("<",">","D","M","Y","U"),art)
 
 
 ## TRANSPOSE ART STRINGS TO BE 1 DRUG PER ROW
-id.list <- strsplit(art$art_id, ',', fixed=TRUE)
-art$rec_id <- seq_len(nrow(art))
-art_ids <- data.frame(rec_id=rep(art$rec_id, times=vapply(id.list, FUN=length, FUN.VALUE=integer(1))),
-                      art_id=unlist(id.list))
-art$art_id <- NULL
-newart <- merge(art_ids, art, by='rec_id', all=TRUE)
+newart <- concatTranspose(art_id,art,sep="+")
 newart <- newart[order(newart$patient,newart$art_sd,newart$art_ed),]
+badcodes(art_id,art_id_codebook$code,newart)
 
 ## QUERY SAME ART_ID WITH OVERLAPPING INTERVALS -- GAPS ARE NOT ERRORS SO DON'T QUERY
 query <- emptyquery
