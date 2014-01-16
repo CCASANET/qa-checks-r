@@ -22,12 +22,11 @@
 #############################################################
 rm(list=ls()) # clear namespace
 
-
 ## USER -- PLEASE REVISE or CHANGE THE APPROPRIATE WORKING DIRECTORY AND SET THE APPROPRIATE DATABASE CLOSE DATE
 #setwd("/home/blevinml/Projects/CCASAnet/qa-checks-r")
 
 ## IN ORDER TO ASSESS DATES OCCURRING IN THE FUTURE, WE NEED A DATABASE CLOSE DATE (YYYY-MM-DD)
-databaseclose <- "2013-12-31"
+databaseclose <- "2014-01-15"
 
 ## READ QUERY_FUNCTIONS.R
 source("code/query_functions.R")
