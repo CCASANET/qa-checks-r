@@ -102,6 +102,8 @@ newart <- newart[order(newart$patient,newart$art_sd,newart$art_ed),]
 badcodes(art_id,art_id_codebook$code,newart)
 
 ## QUERY SAME ART_ID WITH OVERLAPPING INTERVALS -- GAPS ARE NOT ERRORS SO DON'T QUERY
+
+if(exists("art_id",art)){
 query <- emptyquery
 for(i in unique(newart$art_id)){
   data <- newart[newart$art_id==i,]
@@ -119,7 +121,7 @@ for(i in unique(newart$art_id)){
  }
 assign(paste("query",index,sep=""),query,envir=globalenv())
 index <<- index + 1
-
+}
 
 
 

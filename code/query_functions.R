@@ -323,14 +323,17 @@ missrecord <- function(uniqueid,subset=parent.frame(),superset=parent.frame(),su
 
 ## TRANSPOSE CONCATONATED STRINGS TO BE 1 RECORD PER ROW
 concatTranspose <- function(var,data,sep="+"){
-   varval <- get(deparse(substitute(var)),data)
-   id.list <- strsplit(varval, split=sep, fixed=TRUE)
-   data$rec_id <- seq_len(nrow(data))
-   varval_ids <- data.frame(rec_id=rep(data$rec_id, times=vapply(id.list, FUN=length, FUN.VALUE=integer(1))),
-                      varname=unlist(id.list))
-   data <- data[,!(names(data) %in% deparse(substitute(var)))]
-   colnames(varval_ids)[which(colnames(varval_ids)=="varname")] <- deparse(substitute(var))
-   transdata <- merge(varval_ids, data, by='rec_id', all=TRUE)
-   return(transdata)
+   var <- deparse(substitute(var))
+   if(exists(var,data)){
+    varval <- as.character(get(var,data))
+    id.list <- strsplit(varval, split=sep, fixed=TRUE)
+    data$rec_id <- seq_len(nrow(data))
+    varval_ids <- data.frame(rec_id=rep(data$rec_id, times=vapply(id.list, FUN=length, FUN.VALUE=integer(1))),
+			varname=unlist(id.list))
+    data <- data[,!(names(data) %in% var)]
+    colnames(varval_ids)[which(colnames(varval_ids)=="varname")] <- var
+    transdata <- merge(varval_ids, data, by='rec_id', all=TRUE)
+    return(transdata)
+  }
 }
 
