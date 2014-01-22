@@ -40,7 +40,7 @@ patsum <- length(unique(allquery$PID))
 <%=printtext_by_site%>
 <h2>Patient-level Counts</h2>
 <img src="histbox.png" />
-<img src="counts_by_enrol_d.png" />
+<%=write_plot_inclusion2%>
 <br><hr /><br>
 <%=print_by_site%>
 

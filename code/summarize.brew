@@ -41,26 +41,30 @@ writeHTMLtable <- function(table,header=FALSE,filtering_enabled=FALSE,total_row=
   if(!header) table <- paste(start,"<tbody><tr><td>",paste(apply(table,1,paste,collapse="</td><td>&nbsp;"),collapse="</tr><tr><td>"),end,sep="")
   return(table)
 }
+write_plot_inclusion1 <- ""
+if(exists("birth_d",basic) & exists("male_y",basic)){
+    if(!all(is.na(basic$birth_d)) & all(basic$male_y %in% c(0,1,9,NA))){
+	## CREATE A BARPLOT GRAPHIC
+	dob_year <- as.numeric(substr(basic$birth_d,1,4))
+	## for simplicity, remove birthdates that have any flag
+	plotindex1 <- TRUE
+	if(exists("birth_d_a",basic)) plotindex1 <- is.na(basic$birth_d_a)|basic$birth_d_a %in% c("D","M","Y")
+	plotdob <- data.frame(table(dob_year[plotindex1],basic$male_y[plotindex1]))
 
-## CREATE A BARPLOT GRAPHIC
-dob_year <- as.numeric(substr(basic$birth_d,1,4))
-## for simplicity, remove birthdates that have any flag
-plotindex1 <- TRUE
-if(exists("birth_d_a",basic)) plotindex1 <- is.na(basic$birth_d_a)|basic$birth_d_a %in% c("D","M","Y")
-plotdob <- data.frame(table(dob_year[plotindex1],basic$male_y[plotindex1]))
 
-
-png("output/year_gender_barchart.png",res=100,width=640,height=480, bg="transparent") 
-par(mgp=c(2,1,0),mar=c(3,3,1,1))
-plotdob[,1] <- as.numeric(as.character(plotdob[,1]))
-plot(plotdob[,1],plotdob[,3],col=0,xlab="Year of birth",ylab="Number of patients",xlim=quantile(plotdob[,1],p=c(0.05,0.95)))
-rect(xleft=plotdob[plotdob$Var2==1,1]-.35,ybottom=0,xright=plotdob[plotdob$Var2==1,1],ytop=plotdob[plotdob$Var2==1,3],border=TRUE,col="blue",lwd=0.5)
-rect(xleft=plotdob[plotdob$Var2==0,1],ybottom=0,xright=plotdob[plotdob$Var2==0,1]+.35,ytop=plotdob[plotdob$Var2==0,3],border=TRUE,col="red",lwd=0.5)
-legend("topleft", c("Male", "Female"), pch=15, 
-       col=c("blue","red"), border="black",
-       bty="n")
-dev.off()
-
+	png("output/year_gender_barchart.png",res=100,width=640,height=480, bg="transparent") 
+	par(mgp=c(2,1,0),mar=c(3,3,1,1))
+	plotdob[,1] <- as.numeric(as.character(plotdob[,1]))
+	plot(plotdob[,1],plotdob[,3],col=0,xlab="Year of birth",ylab="Number of patients",xlim=quantile(plotdob[,1],p=c(0.05,0.95)))
+	rect(xleft=plotdob[plotdob$Var2==1,1]-.35,ybottom=0,xright=plotdob[plotdob$Var2==1,1],ytop=plotdob[plotdob$Var2==1,3],border=TRUE,col="blue",lwd=0.5)
+	rect(xleft=plotdob[plotdob$Var2==0,1],ybottom=0,xright=plotdob[plotdob$Var2==0,1]+.35,ytop=plotdob[plotdob$Var2==0,3],border=TRUE,col="red",lwd=0.5)
+	legend("topleft", c("Male", "Female"), pch=15, 
+	      col=c("blue","red"), border="black",
+	      bty="n")
+	dev.off()
+        write_plot_inclusion1 <- "<img src='year_gender_barchart.png' />"
+   }
+}
 
 ## THIS LOOPS OVER SITE TO CREATE SUMMARY TABLES
 print_records_by_site <- NULL
@@ -74,7 +78,7 @@ if(length(sort(unique(basic$site)))<2){print_records_by_site <- ""}
 %>
 <h1>Data Summary</h1>
 <p>This report summarizes <%=sum(recordcounts$records)%> records found among <%=recordcounts$patients[recordcounts$tbl=="tblBASIC"]%> patients in a database formulated using the IeDEA data exchange standard. </p>
-<img src="year_gender_barchart.png" />
+<%=write_plot_inclusion1%>
 <br><hr /><br>
 The following table summarizes the number of records and unique patients for the <strong> entire database</strong>:
 <%=writeHTMLtable(recordcounts,header=TRUE)%>
@@ -101,21 +105,26 @@ boxplot(plotcounts$Freq,ylab="",horizontal=TRUE,axes=FALSE)
 stripchart(plotcounts$Freq,vertical=FALSE,method="jitter",add=TRUE,pch=19,cex=0.05,col=3,jitter=0.025)
 dev.off()
 
-png(filename='output/counts_by_enrol_d.png',res=100,width=480,height=480, bg="transparent")
-par(mgp=c(2,1,0),mar=c(3,3,1,1))
-plotcounts <- data.frame(table(allquery$PID))
-plotcounts <- merge(plotcounts,basic,by.x="Var1",by.y="patient",all.x=TRUE)
-plotindex2 <- !is.na(plotcounts$enrol_d)
-if(exists("enrol_d_a",basic)){
-   plotindex2 <- plotindex2 & is.na(plotcounts$enrol_d_a)|plotcounts$enrol_d_a %in% c("D","M","Y")
+write_plot_inclusion2 <- ""
+if(exists("enrol_d",basic)){
+  if(!all(is.na(basic$enrol_d))){
+      png(filename='output/counts_by_enrol_d.png',res=100,width=480,height=480, bg="transparent")
+      par(mgp=c(2,1,0),mar=c(3,3,1,1))
+      plotcounts <- data.frame(table(allquery$PID))
+      plotcounts <- merge(plotcounts,basic,by.x="Var1",by.y="patient",all.x=TRUE)
+      plotindex2 <- !is.na(plotcounts$enrol_d)
+      if(exists("enrol_d_a",basic)){
+	plotindex2 <- plotindex2 & is.na(plotcounts$enrol_d_a)|plotcounts$enrol_d_a %in% c("D","M","Y")
+      }
+      plot(plotcounts$enrol_d[plotindex2],plotcounts$Freq[plotindex2],
+	  type="p",pch=16,cex=0.4,xlab="Year of enrollment",ylab="Number of exceptions",main="")
+      abline(h=mean(plotcounts$Freq[plotindex2]),lty=2,lwd=1.5,col=4)
+      abline(h=median(plotcounts$Freq[plotindex2]),lty=1,lwd=1.5,col=3)
+      legend("topleft",c("Mean","Median"),col=4:3,lty=2:1,lwd=1.5,bty="n")
+      dev.off()
+      write_plot_inclusion2 <- "<img src='counts_by_enrol_d.png' />"
+   }
 }
-plot(plotcounts$enrol_d[plotindex2],plotcounts$Freq[plotindex2],
-     type="p",pch=16,cex=0.4,xlab="Year of enrollment",ylab="Number of exceptions",main="")
-abline(h=mean(plotcounts$Freq[plotindex2]),lty=2,lwd=1.5,col=4)
-abline(h=median(plotcounts$Freq[plotindex2]),lty=1,lwd=1.5,col=3)
-legend("topleft",c("Mean","Median"),col=4:3,lty=2:1,lwd=1.5,bty="n")
-dev.off()
-
 ## THIS LOOPS OVER SITE TO CREATE SUMMARY TABLES
 print_by_site <- NULL
 for(i in sort(unique(allquery$site))){
@@ -129,7 +138,7 @@ patsum <- length(unique(allquery$PID))
 <p>This report summarizes <%=excsum%> exceptions found among <%=patsum%> patients in a database formulated using the IeDEA data exchange standard. </p>
 <h2>Patient-level Counts</h2>
 <img src="histbox.png" />
-<img src="counts_by_enrol_d.png" />
+<%=write_plot_inclusion2%>
 <br><hr /><br>
 The following table summarizes exceptions encountered for the <strong> entire database</strong>:
 <%=writeHTMLtable(overalltable,header=TRUE,filtering_enabled=TRUE,total_row=TRUE)%>

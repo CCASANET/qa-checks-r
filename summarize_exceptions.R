@@ -116,6 +116,7 @@ write.csv(overalltable,paste("output/query_summary_",format(Sys.Date(),"%Y%m%d")
 ############ EVERYTHING CODED ABOVE IS NOT DEPENDENT ON ANY R PACKAGE OR ORIGINAL DATASETS ############
 ## CONVERT DATES USING EXPECTED FORMAT (will force NA if format is incorrect)
 if(exists("enrol_d",basic)){basic$enrol_d <- convertdate(enrol_d,basic)}
+if(exists("birth_d",basic)){basic$birth_d <- convertdate(birth_d,basic)}
 ## MERGE FOR ENROLLMENT DATE
 allquery <- merge(allquery,basic[c("patient","site")],by.x="PID",by.y="patient",all.x=TRUE)
 
