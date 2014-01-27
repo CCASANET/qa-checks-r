@@ -1,6 +1,6 @@
 # CCASAnet-DTP QA Checks
 
-Please view [VIDEO](http://youtu.be/csMUspWNiMA) for step-by-step implementation of the CCASAnet QA checks (detailed in text below).
+Please view [VIDEO](https://vimeo.com/85183601) for step-by-step implementation of the CCASAnet QA checks (detailed in text below).
 
 The major directions for running these scripts:
 
