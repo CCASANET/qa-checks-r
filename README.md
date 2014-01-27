@@ -1,6 +1,6 @@
 # CCASAnet-DTP QA Checks
 
-Please see the [downloads](https://github.com/CCASAnet/qa-checks-r/downloads) section for documentation of the exceptions that are currently implemented. 
+Please view [VIDEO](http://youtu.be/csMUspWNiMA) for step-by-step implementation of the CCASAnet QA checks (detailed in text below).
 
 The major directions for running these scripts:
 
@@ -17,3 +17,4 @@ The major directions for running these scripts:
 11. If successful, a very large file with a table that includes all the exceptions will also be created in the `output` folder.
 12. To generate a summary report of all the exceptions that were captured in that file, you will need to open the file `summarize_exceptions.R` and also source it.
 13. If successful, a few other files will be created in the `output` directory. The html file `output/summary_report.html` and `output/patient_report.html` will give you nice views that you can read in your browser.
+
